@@ -4,6 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const usersRoute = require('./users');
 const moviesRoute = require('./movies');
 const { createUser } = require('../controllers/users');
+const auth = require('../middlewares/auth');
 
 const NotFoundError = require('../errors/not-found-err'); // 404
 
@@ -14,6 +15,8 @@ router.post('/signup', celebrate({
     password: Joi.string().required().min(8),
   }).unknown(true),
 }), createUser);
+
+router.use(auth);
 
 router.use('/users', usersRoute);
 router.use('/movies', moviesRoute);
