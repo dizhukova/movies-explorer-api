@@ -1,9 +1,38 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const BadRequestError = require('../errors/bad-request-err'); // 400
+const UnauthorizedError = require('../errors/unauthorized-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-err'); // 409
+
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+          secure: true,
+        })
+        .send({ token });
+    })
+    .catch((err) => {
+      next(new UnauthorizedError(`Произошла ошибка: ${err.message}`));
+    });
+};
+
+module.exports.logout = (req, res, next) => {
+  res.clearCookie('jwt').send({ message: 'Успешное удаление cookies' });
+  next();
+};
 
 module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;
