@@ -3,6 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
 const BadRequestError = require('../errors/bad-request-err'); // 400
+
 const { getMovies, createMovie, deleteMovie } = require('../controllers/movies');
 
 const methodValidation = (value) => {
