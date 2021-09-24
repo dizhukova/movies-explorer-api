@@ -7,6 +7,8 @@ const UnauthorizedError = require('../errors/unauthorized-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-err'); // 409
 
+const { messages } = require('../utils/constants');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.login = (req, res, next) => {
@@ -24,13 +26,13 @@ module.exports.login = (req, res, next) => {
         })
         .send({ token });
     })
-    .catch((err) => {
-      next(new UnauthorizedError(`Произошла ошибка: ${err.message}`));
+    .catch(() => {
+      next(new UnauthorizedError(messages.authError));
     });
 };
 
 module.exports.logout = (req, res, next) => {
-  res.clearCookie('jwt').send({ message: 'Успешное удаление cookies' });
+  res.clearCookie('jwt').send({ message: messages.successfulLogout });
   next();
 };
 
@@ -48,9 +50,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при создании пользователя.');
+        throw new BadRequestError(messages.incorrectDataUserCreate);
       } else if (err.name === 'MongoError' && err.code === 11000) {
-        throw new ConflictError('Этот email уже зарегистрирован.');
+        throw new ConflictError(messages.alreadyRegisteredEmail);
       } else {
         next(err);
       }
@@ -62,14 +64,14 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError('Пользователь по указанному _id не найден.');
+        throw new NotFoundError(messages.notFoundUserId);
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные.');
+        throw new BadRequestError(messages.incorrectData);
       }
       next(err);
     })
@@ -89,14 +91,14 @@ module.exports.updateUser = (req, res, next) => {
   )
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError('Пользователь с указанным _id не найден.');
+        throw new NotFoundError(messages.notFoundUserId);
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при обновлении профиля.');
+        throw new BadRequestError(messages.incorrectDataUserUpdate);
       }
       next(err);
     })

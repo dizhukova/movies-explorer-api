@@ -4,6 +4,8 @@ const BadRequestError = require('../errors/bad-request-err'); // 400
 const ForbiddenError = require('../errors/forbidden-err'); // 403
 const NotFoundError = require('../errors/not-found-err'); // 404
 
+const { messages } = require('../utils/constants');
+
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
     .then((movies) => res.send(movies))
@@ -43,7 +45,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при создании фильма.');
+        throw new BadRequestError(messages.incorrectDataMovieCreate);
       }
       next(err);
     })
@@ -54,10 +56,10 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .then((movie) => {
       if (movie === null) {
-        throw new NotFoundError('Фильм с указанным _id не найден.');
+        throw new NotFoundError(messages.notFoundMovieId);
       }
       if (movie.owner.toString() !== req.user._id) {
-        throw new ForbiddenError('Недостаточно прав для удаления фильма.');
+        throw new ForbiddenError(messages.notEnoughRightsMovieDelete);
       } else {
         Movie.deleteOne(movie)
           .then(() => res.send(movie));
@@ -65,7 +67,7 @@ module.exports.deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные.');
+        throw new BadRequestError(messages.incorrectData);
       }
       next(err);
     })

@@ -4,36 +4,23 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 
 const router = require('./routes/index');
+const {
+  PORT,
+  DB_URL,
+  corsMethods,
+  corsHeaders,
+  messages,
+} = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const error = require('./middlewares/error');
+const limiter = require('./middlewares/limiter');
 
-const { PORT = 3000 } = process.env;
 const app = express();
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-
-app.use(limiter);
-app.use(helmet());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  credentials: true,
-  optionsSuccessStatus: 200,
-}));
-app.options('*', cors());
-
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(DB_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -42,9 +29,23 @@ mongoose.connect('mongodb://localhost:27017/moviesdb', {
 
 app.use(requestLogger);
 
+app.use(limiter);
+app.use(helmet());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors({
+  origin: '*',
+  methods: corsMethods,
+  allowedHeaders: corsHeaders,
+  credentials: true,
+  optionsSuccessStatus: 200,
+}));
+app.options('*', cors());
+
 app.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
+    throw new Error(messages.serverCrashError);
   }, 0);
 });
 
