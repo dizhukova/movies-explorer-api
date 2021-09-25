@@ -7,7 +7,7 @@ const auth = require('../middlewares/auth');
 const { validateUserSchema, validateUserLogin } = require('../middlewares/validation');
 
 const NotFoundError = require('../errors/not-found-err'); // 404
-const { messages } = require('../utils/constants');
+const { errorMessages } = require('../utils/constants');
 
 router.post('/signup', validateUserSchema, createUser);
 router.post('/signin', validateUserLogin, login);
@@ -19,7 +19,7 @@ router.use('/users', usersRoute);
 router.use('/movies', moviesRoute);
 
 router.use('*', () => {
-  throw new NotFoundError(messages.notFoundError);
+  throw new NotFoundError(errorMessages.notFoundError);
 });
 
 module.exports = router;

@@ -2,12 +2,12 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
 const BadRequestError = require('../errors/bad-request-err'); // 400
-const { messages } = require('../utils/constants');
+const { errorMessages } = require('../utils/constants');
 
 const methodValidation = (value) => {
   const method = validator.isURL(value, { require_protocol: true });
   if (!method) {
-    return new BadRequestError(messages.incorrectData);
+    return new BadRequestError(errorMessages.incorrectData);
   }
   return value;
 };

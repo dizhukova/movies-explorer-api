@@ -7,7 +7,7 @@ const UnauthorizedError = require('../errors/unauthorized-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-err'); // 409
 
-const { messages } = require('../utils/constants');
+const { errorMessages } = require('../utils/constants');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -27,12 +27,12 @@ module.exports.login = (req, res, next) => {
         .send({ token });
     })
     .catch(() => {
-      next(new UnauthorizedError(messages.authError));
+      next(new UnauthorizedError(errorMessages.authError));
     });
 };
 
 module.exports.logout = (req, res, next) => {
-  res.clearCookie('jwt').send({ message: messages.successfulLogout });
+  res.clearCookie('jwt').send({ message: errorMessages.successfulLogout });
   next();
 };
 
@@ -50,9 +50,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError(messages.incorrectDataUserCreate);
+        throw new BadRequestError(errorMessages.incorrectDataUserCreate);
       } else if (err.name === 'MongoError' && err.code === 11000) {
-        throw new ConflictError(messages.alreadyRegisteredEmail);
+        throw new ConflictError(errorMessages.alreadyRegisteredEmail);
       } else {
         next(err);
       }
@@ -64,14 +64,14 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError(messages.notFoundUserId);
+        throw new NotFoundError(errorMessages.notFoundUserId);
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError(messages.incorrectData);
+        throw new BadRequestError(errorMessages.incorrectData);
       }
       next(err);
     })
@@ -91,14 +91,14 @@ module.exports.updateUser = (req, res, next) => {
   )
     .then((user) => {
       if (user === null) {
-        throw new NotFoundError(messages.notFoundUserId);
+        throw new NotFoundError(errorMessages.notFoundUserId);
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError(messages.incorrectDataUserUpdate);
+        throw new BadRequestError(errorMessages.incorrectDataUserUpdate);
       }
       next(err);
     })

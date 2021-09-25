@@ -11,6 +11,7 @@ const errorMessages = {
   notFoundError: 'Ресурс не найден',
   successfulLogout: 'Успешное удаление cookies.',
   incorrectData: 'Переданы некорректные данные.',
+  incorrectDataLogin: 'Неправильные почта или пароль.',
   incorrectDataUserCreate: 'Переданы некорректные данные при создании пользователя.',
   incorrectDataUserUpdate: 'Переданы некорректные данные при обновлении профиля.',
   incorrectDataMovieCreate: 'Переданы некорректные данные при создании фильма.',
@@ -18,6 +19,7 @@ const errorMessages = {
   notFoundMovieId: 'Фильм с указанным _id не найден.',
   alreadyRegisteredEmail: 'Этот email уже зарегистрирован.',
   notEnoughRightsMovieDelete: 'Недостаточно прав для удаления фильма.',
+  invalidEmail: 'Invalid email.',
 };
 
 module.exports = {

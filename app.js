@@ -12,7 +12,7 @@ const {
   DB_URL,
   corsMethods,
   corsHeaders,
-  messages,
+  errorMessages,
 } = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const error = require('./middlewares/error');
@@ -45,7 +45,7 @@ app.options('*', cors());
 
 app.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error(messages.serverCrashError);
+    throw new Error(errorMessages.serverCrashError);
   }, 0);
 });
 
